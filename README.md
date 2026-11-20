@@ -56,14 +56,14 @@ $ make test
 
 ## Release
 
-A release is named by the date of the build (e.g. `2026.11.21`), since the versions of the assets are the ones of the upstream projects in `versions.json`.
-A second release on the same day adds a number (e.g. `2026.11.21.1`).
+A release is named by `v` and the date of the build (e.g. `v2026.11.21`), since the versions of the assets are the ones of the upstream projects in `versions.json`.
+A second release on the same day adds a number (e.g. `v2026.11.21.1`).
 
 Pushing such a tag builds and tests the assets, and creates the GitHub Release of the tag with them:
 
 ```console
-$ git tag 2026.11.21
-$ git push origin 2026.11.21
+$ git tag v2026.11.21
+$ git push origin v2026.11.21
 ```
 
 Running the workflow `Release` manually uploads the assets as an artifact of the workflow run instead.
