@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - id: versions
+        run: |
+          . ./versions.env
+          echo "ruby=$RUBY_VERSION" >> "$GITHUB_OUTPUT"
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ steps.versions.outputs.ruby }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - run: make
+      - run: npm ci
+      - run: make test
+      - if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            dist/ruby.wasm
+            dist/python.wasm
+            dist/SHA256SUMS
+            dist/versions.json
+            dist/LICENSES.txt
+      - if: github.event_name == 'push'
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes dist/ruby.wasm dist/python.wasm dist/SHA256SUMS dist/versions.json dist/LICENSES.txt
+        env:
+          GH_TOKEN: ${{ github.token }}

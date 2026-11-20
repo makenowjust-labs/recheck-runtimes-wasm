@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@bjorn3/browser_wasi_shim": "0.4.2"
+  }
+}

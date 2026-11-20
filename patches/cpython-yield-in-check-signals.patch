@@ -1,0 +1,30 @@
+Call the host from `PyErr_CheckSignals` on WASI.
+
+The host stops a program by throwing from a WASI import.
+`re` and `regex` call `PyErr_CheckSignals` regularly during a matching, and nothing else calls the host there.
+
+--- a/Modules/signalmodule.c
++++ b/Modules/signalmodule.c
+@@ -16,6 +16,10 @@
+ #include "pycore_time.h"          // _PyTime_FromSecondsObject()
+ #include "pycore_tuple.h"         // _PyTuple_FromPairSteal
+
++#ifdef __wasi__
++#  include <sched.h>              // sched_yield()
++#endif
++
+ #ifndef MS_WINDOWS
+ #  include "posixmodule.h"        // _PyLong_FromUid()
+ #endif
+@@ -1763,6 +1767,11 @@
+ int
+ PyErr_CheckSignals(void)
+ {
++#ifdef __wasi__
++    // The host can stop the program only when it is called, and nothing else calls it during a long regex matching.
++    sched_yield();
++#endif
++
+     PyThreadState *tstate = _PyThreadState_GET();
+
+     /* Opportunistically check if the GC is scheduled to run and run it

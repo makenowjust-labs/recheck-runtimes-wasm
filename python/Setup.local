@@ -1,0 +1,2 @@
+*static*
+_regex _regex.c _regex_unicode.c
